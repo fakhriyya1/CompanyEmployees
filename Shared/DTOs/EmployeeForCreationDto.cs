@@ -6,6 +6,5 @@ using System.Threading.Tasks;
 
 namespace Shared.DTOs
 {
-    public record CompanyForCreationDto(string Name, string Address, string Country,
-        IEnumerable<EmployeeForCreationDto> Employees);
+    public record EmployeeForCreationDto(string Name, int Age, string Position);
 }

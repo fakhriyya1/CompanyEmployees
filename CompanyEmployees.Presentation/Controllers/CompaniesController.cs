@@ -34,7 +34,7 @@ namespace CompanyEmployees.Presentation.Controllers
             return Ok(company);
         }
 
-        [HttpGet("collection/({ids})", Name = "CompanyCollection")]
+        [HttpGet("collection/{ids?}", Name = "CompanyCollection")]
         public IActionResult GetCompanyCollection([ModelBinder(BinderType = typeof(ArrayModelBinder))] IEnumerable<Guid> ids)
         {
             var companies = _service.CompanyService.GetByIds(ids, trackChanges: false);
@@ -47,6 +47,9 @@ namespace CompanyEmployees.Presentation.Controllers
         {
             if (company is null)
                 return BadRequest("CompanyForCreationDto object is null");
+
+            //company comes from client, therefore it can be that it is not deserilized
+            //so we have to validate it against reference type's default value, which is null
 
             var createdCompany = _service.CompanyService.CreateCompany(company);
 
@@ -61,5 +64,12 @@ namespace CompanyEmployees.Presentation.Controllers
             return CreatedAtRoute("CompanyCollection", new { ids }, companies);
         }
 
+        [HttpDelete("{id:guid}")]
+        public IActionResult DeleteCompany(Guid id)
+        {
+            _service.CompanyService.DeleteCompany(id, trackChanges: false);
+
+            return NoContent();
+        }
     }
 }

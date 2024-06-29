@@ -20,7 +20,11 @@ namespace CompanyEmployees.Profiles
 
             CreateMap<CompanyForCreationDto, Company>();
 
+            CreateMap<CompanyForUpdateDto, Company>();
+
             CreateMap<EmployeeForCreationDto, Employee>();
+
+            CreateMap<EmployeeForUpdateDto, Employee>();
         }
     }
 }

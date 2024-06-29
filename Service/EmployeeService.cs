@@ -40,14 +40,14 @@ namespace Service
         public EmployeeDto GetEmployee(Guid companyId, Guid id, bool trackChanges)
         {
             var company = _repository.Company.GetCompany(companyId, trackChanges);
-            if(company is null)
+            if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var employee=_repository.Employee.GetEmployee(companyId, id, trackChanges);
+            var employee = _repository.Employee.GetEmployee(companyId, id, trackChanges);
             if (employee is null)
                 throw new EmployeeNotFoundException(id);
 
-            var employeeDto=_mapper.Map<EmployeeDto>(employee);
+            var employeeDto = _mapper.Map<EmployeeDto>(employee);
 
             return employeeDto;
         }
@@ -55,22 +55,22 @@ namespace Service
         public EmployeeDto CreateEmployeeForCompany(Guid companyId, EmployeeForCreationDto employee, bool trackChanges)
         {
             var company = _repository.Company.GetCompany(companyId, trackChanges);
-            if(company is null)
+            if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
-            var employeeEntity=_mapper.Map<Employee>(employee);
+            var employeeEntity = _mapper.Map<Employee>(employee);
 
             _repository.Employee.CreateEmployeeForCompany(companyId, employeeEntity);
             _repository.Save();
 
-            var employeeToReturn=_mapper.Map<EmployeeDto>(employeeEntity);
+            var employeeToReturn = _mapper.Map<EmployeeDto>(employeeEntity);
 
             return employeeToReturn;
         }
 
         public void DeleteEmployeeForCompany(Guid companyId, Guid id, bool trackChanges)
         {
-            var company=_repository.Company.GetCompany(companyId, trackChanges);
+            var company = _repository.Company.GetCompany(companyId, trackChanges);
             if (company is null)
                 throw new CompanyNotFoundException(companyId);
 
@@ -79,6 +79,20 @@ namespace Service
                 throw new EmployeeNotFoundException(id);
 
             _repository.Employee.DeleteEmployee(employeeForCompany);
+            _repository.Save();
+        }
+
+        public void UpdateEmployeeForCompany(Guid companyId, Guid id, EmployeeForUpdateDto employeeForUpdate, bool compTrackChanges, bool empTrackChanges)
+        {
+            var company = _repository.Company.GetCompany(companyId, compTrackChanges);
+            if (company is null)
+                throw new CompanyNotFoundException(companyId);
+
+            var employee = _repository.Employee.GetEmployee(companyId, id, empTrackChanges);
+            if (employee is null)
+                throw new EmployeeNotFoundException(id);
+
+            _mapper.Map(employeeForUpdate, employee);
             _repository.Save();
         }
     }

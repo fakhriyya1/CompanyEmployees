@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 
 namespace Shared.DTOs
 {
-    public record CompanyForUpdateDto(string Name, string Address, string Country, IEnumerable<EmployeeForCreationDto> Employees); //the last is for inserting resources while updating one
+    public record CompanyForUpdateDto(IEnumerable<EmployeeForCreationDto>? Employees) : CompanyForManipulationDto;
+
+    //the last is for inserting resources while updating one
 
 }

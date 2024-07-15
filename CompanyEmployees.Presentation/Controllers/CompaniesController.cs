@@ -1,4 +1,5 @@
-﻿using CompanyEmployees.Presentation.ModelBinders;
+﻿using CompanyEmployees.Presentation.ActionFilters;
+using CompanyEmployees.Presentation.ModelBinders;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DTOs;
@@ -42,18 +43,10 @@ namespace CompanyEmployees.Presentation.Controllers
             return Ok(companies);
         }
 
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         [HttpPost]
         public async Task<IActionResult> CreateCompany([FromBody] CompanyForCreationDto company)
         {
-            if (company is null)
-                return BadRequest("CompanyForCreationDto object is null");
-
-            //company comes from client, therefore it can be that it is not deserilized
-            //so we have to validate it against reference type's default value, which is null
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             var createdCompany = await _service.CompanyService.CreateCompanyAsync(company);
 
             return CreatedAtRoute("CompanyById", new { id = createdCompany.Id }, createdCompany);
@@ -67,15 +60,10 @@ namespace CompanyEmployees.Presentation.Controllers
             return CreatedAtRoute("CompanyCollection", new { ids }, companies);
         }
 
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateCompany(Guid id, [FromBody] CompanyForUpdateDto company)
         {
-            if (company is null)
-                return BadRequest("CompanyForCreationDto object is null");
-
-            if (!ModelState.IsValid)
-                return UnprocessableEntity(ModelState);
-
             await _service.CompanyService.UpdateCompanyAsync(id, company, trackChanges: true);
 
             return NoContent();
@@ -84,7 +72,7 @@ namespace CompanyEmployees.Presentation.Controllers
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteCompany(Guid id)
         {
-             await _service.CompanyService.DeleteCompanyAsync(id, trackChanges: false);
+            await _service.CompanyService.DeleteCompanyAsync(id, trackChanges: false);
 
             return NoContent();
         }

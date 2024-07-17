@@ -1,6 +1,7 @@
 ﻿using Contracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
+using Repository.Extensions;
 using Shared.RequestFeatures;
 using System;
 using System.Collections.Generic;
@@ -18,19 +19,28 @@ namespace Repository
 
         public async Task<PagedList<Employee>> GetEmployeesAsync(Guid companyId, EmployeeParameters employeeParametrs, bool trackChanges)
         {
-            var employees = await FindByCondition(e => e.CompanyId.Equals(companyId) && (e.Age >= employeeParametrs.MinAge && e.Age <= employeeParametrs.MaxAge), trackChanges)
-                .OrderBy(e => e.Name).ToListAsync();
+            var employees = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
+                .FilterEmployees(employeeParametrs.MinAge, employeeParametrs.MaxAge)
+                .Search(employeeParametrs.SearchTerm)
+                .OrderBy(e => e.Name)
+                .ToListAsync();
 
             #region Modified version for better performance for much bigger datas
-            //var employees = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
+
+            //var employees = FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
+            //    .FilterEmployees(employeeParametrs.MinAge, employeeParametrs.MaxAge)
+            //    .Search(employeeParametrs.SearchTerm);
+
+
+            //var employeesList = await employees
             //    .OrderBy(e => e.Name)
             //    .Skip((employeeParametrs.PageNumber - 1) * employeeParametrs.PageSize)
             //    .Take(employeeParametrs.PageSize)
             //    .ToListAsync();
 
-            //var count = await FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges).CountAsync();
+            //var count = await employees.CountAsync();
 
-            //return new PagedList<Employee>(employees, count, employeeParametrs.PageNumber, employeeParametrs.PageSize);
+            //return new PagedList<Employee>(employeesList, count, employeeParametrs.PageNumber, employeeParametrs.PageSize);
             #endregion
 
             return PagedList<Employee>

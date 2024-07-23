@@ -8,6 +8,8 @@ namespace Shared.RequestFeatures
 {
     public class EmployeeParameters : RequestParameters
     {
+        public EmployeeParameters() => OrderBy = "name"; //default sorting condition
+
         public uint MinAge { get; set; } //setting property as unsigned to prevent negative values
         public uint MaxAge { get; set; } = int.MaxValue;
 

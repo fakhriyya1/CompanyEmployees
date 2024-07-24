@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Repository.Extensions.Utilitiy;
 using System;
 using System.Linq.Dynamic.Core;
 using System.Reflection;
@@ -26,26 +27,8 @@ namespace Repository.Extensions
             if (string.IsNullOrWhiteSpace(orderByQueryString))
                 return employees.OrderBy(e => e.Name);
 
-            var orderParams = orderByQueryString.Split(',');  //getting individual fields
-            var properyInfos = typeof(Employee).GetProperties(BindingFlags.Public | BindingFlags.Instance);  //using reflection to get employee properties
-            var orderQueryBuilder = new StringBuilder();
+            var orderQuery=OrderQueryBuilder.CreateOrderQuery<Employee>(orderByQueryString);
 
-            foreach (var param in orderParams)
-            {
-                if (string.IsNullOrWhiteSpace(param))
-                    continue;
-
-                var propertyFromQueryName = param.Trim(' ').Split(" ")[0];
-                var objectProperty = properyInfos.FirstOrDefault(pi => pi.Name.Equals(propertyFromQueryName, StringComparison.InvariantCultureIgnoreCase));
-
-                if (objectProperty == null)
-                    continue;
-
-                var direction = param.EndsWith(" desc") ? "descending" : "ascending";
-                orderQueryBuilder.Append($"{objectProperty.Name.ToString()} {direction}, ");
-            }
-
-            var orderQuery = orderQueryBuilder.ToString().TrimEnd(',',' ');
             if (string.IsNullOrWhiteSpace(orderQuery))
                 return employees.OrderBy(e => e.Name);
 
